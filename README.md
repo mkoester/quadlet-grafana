@@ -79,18 +79,6 @@ sudo -u grafana nano ~grafana/quadlet-grafana/grafana.override.env
 sudo -u grafana XDG_RUNTIME_DIR=/run/user/$(id -u grafana) systemctl --user restart grafana
 ```
 
-### Verifying the container UID
-
-If the container fails to start with a permission error, verify the UID the image uses:
-
-```sh
-podman inspect docker.io/grafana/grafana:latest --format '{{.Config.User}}'
-# If that returns a name instead of a number:
-podman run --rm --entrypoint grep docker.io/grafana/grafana:latest grafana /etc/passwd
-```
-
-Update `UserNS=`, `User=`, and `Group=` in `grafana.container` if needed, then re-run the `podman unshare chown` command from setup step 7.
-
 ## Connecting to Loki
 
 Grafana runs in a container and reaches host-published services via `host.containers.internal`. If Loki is running on the same host and publishes on `127.0.0.1:3100`, add a Loki datasource in Grafana with:
