@@ -1,0 +1,36 @@
+[Unit]
+Description=Grafana observability dashboard
+After=network-online.target
+Wants=network-online.target
+
+[Container]
+Image=docker.io/grafana/grafana:latest
+AutoUpdate=registry
+
+# The image runs as grafana (uid=472, gid=0 — root group).
+UserNS=keep-id:uid=472,gid=0
+User=472
+Group=0
+
+# Environment variables
+EnvironmentFile=%h/.config/containers/systemd/grafana.env
+EnvironmentFile=%h/.config/containers/systemd/grafana.override.env
+
+# Persistent data volume — SQLite DB, dashboards, plugins, alerting state
+Volume=%h/data:/var/lib/grafana:Z
+
+# Port mapping — bind to localhost only, reverse proxy handles TLS
+PublishPort=127.0.0.1:3000:3000
+
+# Health check
+HealthCmd=wget -qO- http://localhost:3000/api/health || exit 1
+HealthInterval=30s
+HealthTimeout=10s
+HealthRetries=3
+
+[Service]
+Restart=always
+TimeoutStartSec=900
+
+[Install]
+WantedBy=default.target
