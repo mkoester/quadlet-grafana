@@ -44,14 +44,11 @@ sudo -u grafana ln -s $REPO/grafana.container ~grafana/.config/containers/system
 sudo -u grafana ln -s $REPO/grafana.env ~grafana/.config/containers/systemd/grafana.env
 sudo -u grafana ln -s $REPO/grafana.override.env ~grafana/.config/containers/systemd/grafana.override.env
 
-# 7. Fix data directory ownership to match the container UID (472)
-sudo -u grafana podman unshare chown -R 472:0 ~grafana/data
-
-# 8. Reload and start
+# 7. Reload and start
 sudo -u grafana XDG_RUNTIME_DIR=/run/user/$(id -u grafana) systemctl --user daemon-reload
 sudo -u grafana XDG_RUNTIME_DIR=/run/user/$(id -u grafana) systemctl --user start grafana
 
-# 9. Verify
+# 8. Verify
 sudo -u grafana XDG_RUNTIME_DIR=/run/user/$(id -u grafana) systemctl --user status grafana
 ```
 
