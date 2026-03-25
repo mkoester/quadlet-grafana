@@ -19,8 +19,10 @@ EnvironmentFile=%h/.config/containers/systemd/grafana.override.env
 # Persistent data volume — SQLite DB, dashboards, plugins, alerting state
 Volume=%h/data:/var/lib/grafana:Z
 
-# Port mapping — bind to localhost only, reverse proxy handles TLS
-PublishPort=127.0.0.1:3000:3000
+# Host networking — allows Grafana to reach host-bound services (Loki, InfluxDB, etc.)
+# at http://localhost:<port>. PublishPort is not used with host networking;
+# Caddy proxies to localhost:3000 directly.
+Network=host
 
 # Health check
 HealthCmd=wget -qO- http://localhost:3000/api/health || exit 1

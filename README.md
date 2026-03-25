@@ -78,10 +78,10 @@ sudo -u grafana XDG_RUNTIME_DIR=/run/user/$(id -u grafana) systemctl --user rest
 
 ## Connecting to Loki
 
-Grafana runs in a container and reaches host-published services via `host.containers.internal`. If Loki is running on the same host and publishes on `127.0.0.1:3100`, add a Loki datasource in Grafana with:
+Grafana uses host networking and can reach host-bound services directly via `localhost`. Add a Loki datasource in Grafana with:
 
 ```
-URL: http://host.containers.internal:3100
+URL: http://localhost:3100
 ```
 
 Navigate to **Connections → Data sources → Add new → Loki** in the Grafana UI.
@@ -132,7 +132,7 @@ rsync -az backupuser@grafana-host:/var/backups/grafana/ /path/to/local/backup/gr
 
 ## Notes
 
-- Port `3000` is bound to `127.0.0.1` only — Caddy handles TLS termination.
+- Grafana uses host networking and binds port `3000` on all interfaces — Caddy handles TLS termination and should be the only external entry point.
 - All persistent data is stored at `~grafana/data/` on the host.
 - `AutoUpdate=registry` is enabled; activate the timer once to get automatic image updates:
   ```sh
