@@ -13,6 +13,7 @@ This project was created with the help of Claude Code and https://github.com/mko
 | `grafana.override.env.template` | Template for local overrides (secrets) |
 | `grafana-backup.service` | Systemd service: SQLite snapshot + rsync to backup location |
 | `grafana-backup.timer` | Systemd timer: triggers the backup daily |
+| `provisioning/datasources/loki.yaml.template` | Grafana datasource provisioning template for Loki |
 
 ## Setup
 
@@ -31,24 +32,29 @@ sudo loginctl enable-linger grafana
 # 3. Clone this repo into the service user's home
 sudo -u grafana git clone $REPO_URL $REPO
 
-# 4. Create quadlet and data directories
+# 4. Create quadlet, data, and provisioning directories
 sudo -u grafana mkdir -p ~grafana/.config/containers/systemd
 sudo -u grafana mkdir -p ~grafana/data
+sudo -u grafana mkdir -p ~grafana/provisioning/datasources
+sudo -u grafana mkdir -p ~grafana/provisioning/dashboards
 
-# 5. Create .override.env from template and set the admin password
+# 5. Copy provisioning templates
+sudo -u grafana cp $REPO/provisioning/datasources/loki.yaml.template ~grafana/provisioning/datasources/loki.yaml
+
+# 6. Create .override.env from template and set the admin password
 sudo -u grafana cp $REPO/grafana.override.env.template $REPO/grafana.override.env
 sudo -u grafana nano $REPO/grafana.override.env
 
-# 6. Symlink quadlet files from the repo
+# 7. Symlink quadlet files from the repo
 sudo -u grafana ln -s $REPO/grafana.container ~grafana/.config/containers/systemd/grafana.container
 sudo -u grafana ln -s $REPO/grafana.env ~grafana/.config/containers/systemd/grafana.env
 sudo -u grafana ln -s $REPO/grafana.override.env ~grafana/.config/containers/systemd/grafana.override.env
 
-# 7. Reload and start
+# 8. Reload and start
 sudo -u grafana XDG_RUNTIME_DIR=/run/user/$(id -u grafana) systemctl --user daemon-reload
 sudo -u grafana XDG_RUNTIME_DIR=/run/user/$(id -u grafana) systemctl --user start grafana
 
-# 8. Verify
+# 9. Verify
 sudo -u grafana XDG_RUNTIME_DIR=/run/user/$(id -u grafana) systemctl --user status grafana
 ```
 
@@ -76,15 +82,20 @@ sudo -u grafana nano ~grafana/quadlet-grafana/grafana.override.env
 sudo -u grafana XDG_RUNTIME_DIR=/run/user/$(id -u grafana) systemctl --user restart grafana
 ```
 
-## Connecting to Loki
+## Provisioning
 
-Grafana uses host networking and can reach host-bound services directly via `localhost`. Add a Loki datasource in Grafana with:
+Grafana loads datasources and dashboards from `~grafana/provisioning/` (mounted at `/etc/grafana/provisioning/` inside the container). This directory is **not** managed by symlink — copy and adjust templates from this repo's `provisioning/` directory.
 
+```sh
+# Loki datasource
+cp $REPO/provisioning/datasources/loki.yaml.template ~grafana/provisioning/datasources/loki.yaml
 ```
-URL: http://localhost:3100
-```
 
-Navigate to **Connections → Data sources → Add new → Loki** in the Grafana UI.
+After adding or changing provisioning files, restart Grafana:
+
+```sh
+sudo -u grafana XDG_RUNTIME_DIR=/run/user/$(id -u grafana) systemctl --user restart systemd-grafana
+```
 
 ## Reverse proxy (Caddy)
 
