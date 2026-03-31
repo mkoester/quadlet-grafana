@@ -6,6 +6,6 @@ Type=oneshot
 # Step 1: Consistent SQLite snapshot of the Grafana database (safe for online backup)
 ExecStart=/usr/bin/sqlite3 %h/data/grafana.db ".backup '/var/backups/grafana/grafana.db'"
 # Step 2: Sync remaining data — plugins, alerting state, etc. (excludes grafana.db, handled above)
-ExecStart=/usr/bin/rsync -a --delete --exclude=grafana.db %h/data/ /var/backups/grafana/data/
+ExecStart=/usr/bin/rsync -a --delete --exclude=grafana.db --chmod=Dg+x,Fg+r %h/data/ /var/backups/grafana/data/
 # Step 3: Sync provisioning — datasources, dashboards, etc.
-ExecStart=/usr/bin/rsync -a --delete %h/provisioning/ /var/backups/grafana/provisioning/
+ExecStart=/usr/bin/rsync -a --delete --chmod=Dg+x,Fg+r %h/provisioning/ /var/backups/grafana/provisioning/
