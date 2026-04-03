@@ -35,11 +35,11 @@ sudo -u grafana git clone $REPO_URL $REPO
 # 4. Create quadlet, data, and provisioning directories
 sudo -u grafana mkdir -p ~grafana/.config/containers/systemd
 sudo -u grafana mkdir -p ~grafana/data
-sudo -u grafana mkdir -p ~grafana/provisioning/datasources
-sudo -u grafana mkdir -p ~grafana/provisioning/dashboards
+sudo -u grafana mkdir -p ~grafana/provisioning/{datasources,dashboards,plugins,alerting}
 
 # 5. Copy provisioning templates
 sudo -u grafana cp $REPO/provisioning/datasources/loki.yaml.template ~grafana/provisioning/datasources/loki.yaml
+sudo -u grafana cp $REPO/provisioning/dashboards/default.yaml ~grafana/provisioning/dashboards/default.yaml
 
 # 6. Create .override.env from template and set the admin password
 sudo -u grafana cp $REPO/grafana.override.env.template $REPO/grafana.override.env
