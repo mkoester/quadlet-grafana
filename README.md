@@ -123,7 +123,7 @@ The backup service uses `sqlite3 .backup` for a consistent DB snapshot, then `rs
 # 1. Create backup staging directory (owned by grafana, readable by backup-readers group)
 sudo mkdir -p /var/backups/grafana
 sudo chown grafana:backup-readers /var/backups/grafana
-sudo chmod 750 /var/backups/grafana
+sudo chmod 2750 /var/backups/grafana
 
 # 2. Symlink the backup service and timer from the repo
 sudo -u grafana mkdir -p ~grafana/.config/systemd/user
