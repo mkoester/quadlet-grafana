@@ -124,6 +124,7 @@ The backup service uses `sqlite3 .backup` for a consistent DB snapshot, then `rs
 sudo mkdir -p /var/backups/grafana
 sudo chown grafana:backup-readers /var/backups/grafana
 sudo chmod 2750 /var/backups/grafana
+sudo setfacl -R -m g:backup-readers:rX,d:g:backup-readers:rX /var/backups/grafana
 
 # 2. Symlink the backup service and timer from the repo
 sudo -u grafana mkdir -p ~grafana/.config/systemd/user
